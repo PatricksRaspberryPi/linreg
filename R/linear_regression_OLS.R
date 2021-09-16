@@ -13,13 +13,16 @@ linreg <- function(formula, data) {
   t_value <- beta/sqrt(var(beta))[1]
   p_value <- pt(q=t_value, df=df)
 
-  res <- list("beta"=beta, "predictions"=predictions, "residuals"=residuals,
-              "degrees of freedom"=df, "residual variance"=res_var, "beta variance"=beta_var,
-              "t_value"=t_value, "p-value"=p_value)
-  print(res)
+  result <- linreg_class()
+
+  result$beta <- beta
+  result$predictions <- predictions
+  result$residuals <- residuals
+  result$df <- df
+  result$res_var <- res_var
+  result$beta_var <- beta_var
+  result$t_value <- t_value
+  result$p_value <- p_value
+
+  return(result)
 }
-
-
-formula <- Petal.Length ~ Species
-data(iris)
-linreg(formula, iris)
