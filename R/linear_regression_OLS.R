@@ -15,6 +15,8 @@ linreg <- function(formula, data) {
 
   result <- linreg_class()
 
+  result$formula <- formula
+  result$data <- data
   result$beta <- beta
   result$predictions <- predictions
   result$residuals <- residuals
@@ -26,3 +28,6 @@ linreg <- function(formula, data) {
 
   return(result)
 }
+
+
+
