@@ -32,7 +32,7 @@ linreg_class$methods(show = function(){
   print(sprintf("linreg(formula = %s, data = %s)", format(.self$formula), deparse(substitute(.self$data))))
   print("")
   print("Coefficients:")
-  print(t(beta))
+  print(t(.self$beta))
 })
 
 
