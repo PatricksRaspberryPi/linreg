@@ -25,6 +25,7 @@ linreg <- function(formula, data) {
   result$beta_var <- beta_var
   result$t_value <- t_value
   result$p_value <- p_value
+  result$hallo <- "guten morgen"
 
   return(result)
 }
