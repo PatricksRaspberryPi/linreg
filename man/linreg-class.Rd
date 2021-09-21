@@ -3,13 +3,13 @@
 \docType{class}
 \name{linreg-class}
 \alias{linreg-class}
-\alias{linreg_class}
+\alias{linreg}
 \title{Linear Regression Reference Class}
 \usage{
-linreg_class(formula, data, beta, predictions, residuals, df, res_var, beta_var, t_value, p_value)
+linreg(formula, data, beta, predictions, residuals, df, res_var, beta_var, t_value, p_value)
 }
 \description{
-Definition of the Reference Class linreg_class for the linear regression model
+Definition of the Reference Class linreg for the linear regression model
 in Lab 4.
 }
 \section{Fields}{

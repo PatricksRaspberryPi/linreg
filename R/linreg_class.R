@@ -1,10 +1,10 @@
 #'
-#' @description Definition of the Reference Class linreg_class for the linear regression model
+#' @description Definition of the Reference Class linreg for the linear regression model
 #' in Lab 4.
 #'
 #' @title Linear Regression Reference Class
 #'
-#' @usage  linreg_class(formula, data, beta, predictions, residuals, df, res_var, beta_var, t_value, p_value)
+#' @usage  linreg(formula, data, beta, predictions, residuals, df, res_var, beta_var, t_value, p_value)
 #'
 #' @field formula formula for building the model
 #' @field data dataset that contains feature and target values
@@ -19,11 +19,10 @@
 #'
 #' @import ggplot2
 #' @import dplyr
-#'
 #' @export linreg
-#' @exportClass  linreg
+#' @exportClass linreg
 
-linreg_class <- setRefClass(Class = "linreg",
+linreg <- setRefClass(Class = "linreg",
                       fields = list(formula = "formula",
                                     data = "data.frame",
                                     beta = "matrix",
@@ -33,7 +32,41 @@ linreg_class <- setRefClass(Class = "linreg",
                                     res_var = "matrix",
                                     beta_var = "matrix",
                                     t_value = "matrix",
-                                    p_value = "matrix"))
+                                    p_value = "matrix",
+                                    name_dataset = "character",
+                                    col_names = "character"),
+
+                      methods = list(
+
+                        initialize = function(formula, data){
+
+
+                        if (!(inherits(formula, "formula") & is.data.frame(data))) {
+                          stop("Wrong input!")
+                        }
+
+                        stopifnot("invalid input" = all(all.vars(formula) %in% colnames(data)))
+
+
+                        X <- model.matrix(formula, data)
+                        #convert y to matrix, otherwise the computations won't work.
+                        y <- as.matrix(data[all.vars(formula)[1]])
+
+                        .self$col_names <<- colnames(X)
+                        .self$formula <<- formula
+                        .self$data <<- data
+                        .self$name_dataset <<- deparse(substitute(data))
+                        .self$beta <<- solve((t(X) %*% X)) %*% t(X) %*% y
+                        .self$predictions <<- X %*% beta
+                        .self$residuals <<- y - predictions
+                        .self$df <<- nrow(X) - ncol(X)
+                        .self$res_var <<- (t(residuals) %*% residuals)/df
+                        .self$beta_var <<- res_var[[1,1]] * solve(t(X) %*% X)
+                        .self$t_value <<- beta/sqrt(var(beta))[1]
+                        .self$p_value <<- pt(q=t_value, df=df)
+
+                        return(.self)
+                      }))
 
 
 
@@ -42,15 +75,19 @@ linreg_class <- setRefClass(Class = "linreg",
 #' @description print out the coefficients and coefficient names
 #'
 #' @title customized print function
-#' @usage linreg_class$plot()
+#' @usage linreg$plot()
 #' @export
 
-linreg_class$methods(show = function(){
-  print("Call: ")
-  print(sprintf("linreg(formula = %s, data = %s)", format(.self$formula), deparse(substitute(.self$data))))
-  print("")
-  print("Coefficients:")
-  print(t(.self$beta))
+linreg$methods(print = function(){
+
+  to_print <- sprintf("linreg(formula = %s, data = iris)", format(.self$formula))
+  coef_output <- beta
+  rownames(coef_output) <- .self$col_names
+
+  cat("Call:",
+      toString(to_print),
+      "Coefficients:",
+      t(coef_output))
 })
 
 
@@ -62,10 +99,10 @@ linreg_class$methods(show = function(){
 #'
 #' @title Resid
 #'
-#' @usage linreg_class$resid()
+#' @usage linreg$resid()
 #' @export
 
-linreg_class$methods(resid = function(){
+linreg$methods(resid = function(){
   return(.self$residuals)
 })
 
@@ -77,10 +114,10 @@ linreg_class$methods(resid = function(){
 #'
 #' @title Pred
 #'
-#' @usage linreg_class$pred()
+#' @usage linreg$pred()
 #' @export
 
-linreg_class$methods(pred = function(){
+linreg$methods(pred = function(){
   return(.self$predictions)
 })
 
@@ -91,10 +128,10 @@ linreg_class$methods(pred = function(){
 #'
 #' @title Coef
 #'
-#' @usage linreg_class$coef()
+#' @usage linreg$coef()
 #' @export
 
-linreg_class$methods(coef = function(){
+linreg$methods(coef = function(){
   return(.self$beta)
 })
 
@@ -105,10 +142,10 @@ linreg_class$methods(coef = function(){
 #'
 #' @title Summary
 #'
-#' @usage linreg_class$summary()
+#' @usage linreg$summary()
 #' @export
 
-linreg_class$methods(summary = function(){
+linreg$methods(summary = function(){
 
   coef_df <- data.frame(.self$beta, sqrt(.self$res_var), .self$t_value, .self$p_value)
   colnames(coef_df) <- c("Estimate", "Std. Error", "t value", "Pr(>|t|)")
@@ -128,6 +165,5 @@ linreg_class$methods(summary = function(){
   print("")
   print(sprintf("Residual standard error: %f on %i degrees of freedom", sqrt(.self$res_var), .self$df))
 
+
 })
-
-

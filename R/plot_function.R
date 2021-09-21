@@ -8,7 +8,7 @@
 #' @title customized plot function
 #'
 #' @export
-linreg_class$methods("plot" = function() {
+linreg$methods(plot = function() {
   rel_data <- data.frame(.self$predictions, .self$residuals, sqrt(abs(.self$residuals/sd(.self$residuals))))
   colnames(rel_data) <- c("predictions", "residuals", "standardized_res")
 
