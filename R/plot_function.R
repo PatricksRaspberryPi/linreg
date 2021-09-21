@@ -1,6 +1,6 @@
 #' @import ggplot2
 #' @importFrom dplyr %>%
-#'
+#' @import gridExtra
 #'
 #' @description Class method to generate two plots. First plot plots residuals vs predictions and second
 #' plot shows the square root of the standardized residuals vs the predictions

@@ -20,7 +20,8 @@
 #' @import ggplot2
 #' @import dplyr
 #'
-#' @export
+#' @export linreg
+#' @exportClass  linreg
 
 linreg_class <- setRefClass(Class = "linreg",
                       fields = list(formula = "formula",
@@ -128,3 +129,5 @@ linreg_class$methods(summary = function(){
   print(sprintf("Residual standard error: %f on %i degrees of freedom", sqrt(.self$res_var), .self$df))
 
 })
+
+
