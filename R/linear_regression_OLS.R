@@ -1,3 +1,4 @@
+#' @export
 linreg <- function(formula, data) {
 
   X <- model.matrix(formula, data)
@@ -28,6 +29,3 @@ linreg <- function(formula, data) {
 
   return(result)
 }
-
-exi <- linreg(data=iris, formula=formula)
-

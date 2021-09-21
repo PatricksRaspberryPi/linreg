@@ -1,13 +1,25 @@
-#' @title Linear Regression Reference Class
 #'
-#' Definition of the Reference Class for the linear regression model
+#' @description Definition of the Reference Class linreg_class for the linear regression model
 #' in Lab 4.
 #'
-#' @usage  a A number
-#' @param b A number
-#' @return The greatest common divisor
-#' @examples
-#' euclidean(100, 1000)
+#' @title Linear Regression Reference Class
+#'
+#' @usage  linreg_class(formula, data, beta, predictions, residuals, df, res_var, beta_var, t_value, p_value)
+#'
+#' @field formula formula for building the model
+#' @field data dataset that contains feature and target values
+#' @field beta values of the model's coefficients
+#' @field predictions values of the dependent variable predicted by the model
+#' @field residuals values of the residuals
+#' @field df degrees of freedom
+#' @field res_var variance of the residuals
+#' @field beta_var variance of the regression coefficients
+#' @field t_value t-values for each coefficient
+#' @field p_value p-values for each coefficient
+#'
+#' @import ggplot2
+#' @import dplyr
+#'
 #' @export
 
 linreg_class <- setRefClass(Class = "linreg",
@@ -25,7 +37,12 @@ linreg_class <- setRefClass(Class = "linreg",
 
 
 
-
+#'
+#' @description print out the coefficients and coefficient names
+#'
+#' @title customized print function
+#' @usage linreg_class$plot()
+#' @export
 
 linreg_class$methods(show = function(){
   print("Call: ")
@@ -36,75 +53,78 @@ linreg_class$methods(show = function(){
 })
 
 
-#' @import ggplot2
-#' @import dplyr
-linreg_class$methods(plot = function() {
-  rel_data <- data.frame(.self$predictions, .self$residuals, sqrt(abs(.self$residuals/sd(.self$residuals))))
-  colnames(rel_data) <- c("predictions", "residuals", "standardized_res")
 
-  points_to_print <- rel_data[c(99, 118, 119), ]
 
-  #subtract a little amount from all predictions, in order for the label to be left from the point
-  points_to_print$predictions <- points_to_print$predictions - 0.25
 
-  #compute the medians for the plot
-  grouped_median_residuals <- rel_data %>% group_by(predictions) %>% summarise(median=median(residuals))
-  grouped_median_residuals_stand <- rel_data %>% group_by(predictions) %>% summarise(median=median(standardized_res))
 
-  called_formula <- sprintf("linreg(%s)", format(.self$formula))
+#' @description Return the vector of the residuals
+#'
+#' @title Resid
+#'
+#' @usage linreg_class$resid()
+#' @export
 
-  #call ggplot to define what data should be plotted, + kind of plot
-  first_plot <- ggplot(rel_data, aes(x=predictions, y=residuals)) +
-  geom_point(shape="circle open") +
-  scale_y_continuous(name = "Residuals", breaks = seq(-1.5,1.5, 0.5), limits = c(-1.6, 1.6)) +
-  scale_x_continuous(name = paste("Fitted values \n", called_formula, sep = ""))  +
-  ggtitle("Residuals vs Fitted") +
-  geom_hline(yintercept=0, linetype="dotted") +
-  geom_line(data = grouped_median_residuals, aes(x=predictions, y=median), color = "red") +
-  geom_text(data = points_to_print, aes(x=predictions, y=residuals), label = rownames(points_to_print)) +
-  coord_fixed(ratio = 0.8) +
-  theme(plot.title = element_text(hjust = 0.5),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        panel.border = element_rect(colour = "black", fill=NA, size=1))
-
-  print(rel_data)
-
-  second_plot <- ggplot(rel_data, aes(x=predictions, y=standardized_res)) +
-    geom_point(shape="circle open") +
-    scale_y_continuous(expression(sqrt("|Standardized residuals|")), breaks = seq(0,1.5, 0.5), limits = c(0, 1.8)) +
-    scale_x_continuous(name = paste("Fitted values \n", called_formula, sep = "")) +
-    ggtitle("Scale-Location") +
-    geom_line(data = grouped_median_residuals_stand, aes(x=predictions, y=median), color = "red") +
-    geom_text(data = points_to_print, aes(x=predictions, y=standardized_res), label = rownames(points_to_print)) +
-    coord_fixed(ratio = 1.4) +
-    theme(plot.title = element_text(hjust = 0.5),
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          panel.background = element_blank(),
-          panel.border = element_rect(colour = "black", fill=NA, size=1))
-
-  grid.arrange(first_plot, second_plot, ncol=1, nrow=2, heights=c(5,5))
-
-  return(rel_data)
+linreg_class$methods(resid = function(){
+  return(.self$residuals)
 })
 
-data(iris)
-formula <- Petal.Length ~ Species
-c <- linreg(formula=formula, data=iris)
-k <- c$plot()
-
-rownames(k[k$standardized_res > 1.4, ])
-
-data.frame(c$predictions, c$residuals)
-
-d <- rbind(iris[order(iris$Sepal.Length), c("Sepal.Length", "Sepal.Width")][1, ], tail(iris[order(iris$Sepal.Length), c("Sepal.Length", "Sepal.Width")], 2))
-d$Sepal.Length <- d$Sepal.Length - 1
 
 
-hallo <- iris[1:10, ]
 
-hallo[["probe"]] <- 21:30
+#'
+#' @description Return the vector of the predicted values
+#'
+#' @title Pred
+#'
+#' @usage linreg_class$pred()
+#' @export
 
-summarise(grouped, median)
+linreg_class$methods(pred = function(){
+  return(.self$predictions)
+})
+
+
+
+#'
+#' @description Return the vector of the coefficients
+#'
+#' @title Coef
+#'
+#' @usage linreg_class$coef()
+#' @export
+
+linreg_class$methods(coef = function(){
+  return(.self$beta)
+})
+
+
+
+#'
+#' @description Print out a summary for the linear regression
+#'
+#' @title Summary
+#'
+#' @usage linreg_class$summary()
+#' @export
+
+linreg_class$methods(summary = function(){
+
+  coef_df <- data.frame(.self$beta, sqrt(.self$res_var), .self$t_value, .self$p_value)
+  colnames(coef_df) <- c("Estimate", "Std. Error", "t value", "Pr(>|t|)")
+
+  print("Call: ")
+  print(sprintf("linreg(formula = %s, data = %s)", format(.self$formula), deparse(substitute(.self$data))))
+  print("")
+  print("Residuals:")
+  print(c("Min"=min(.self$residuals),
+          "1Q"=quantile(.self$residuals)[[2]],
+          "Median"=median(.self$residuals),
+          "3Q"=quantile(.self$residuals)[[4]],
+          "Max"=max(.self$residuals)))
+  print("")
+  print("Coefficients:")
+  print(coef_df)
+  print("")
+  print(sprintf("Residual standard error: %f on %i degrees of freedom", sqrt(.self$res_var), .self$df))
+
+})
