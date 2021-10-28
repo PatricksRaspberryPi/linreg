@@ -1,6 +1,3 @@
-test_that("test for RC class", {
-  context("linreg")
-
   data("iris")
 
   Polygon <- setRefClass("Polygon", fields = c("sides"))
@@ -52,4 +49,3 @@ test_that("test for RC class", {
     expect_output(linreg_mod$summary(), "Residual standard error: 0.6[0-9]* on 147 degrees of freedom")
   })
 
-})

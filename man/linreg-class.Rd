@@ -5,9 +5,6 @@
 \alias{linreg-class}
 \alias{linreg}
 \title{Linear Regression Reference Class}
-\usage{
-linreg(formula, data, beta, predictions, residuals, df, res_var, beta_var, t_value, p_value)
-}
 \description{
 Definition of the Reference Class linreg for the linear regression model
 in Lab 4.

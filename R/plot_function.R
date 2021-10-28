@@ -1,13 +1,3 @@
-#' @import ggplot2
-#' @importFrom dplyr %>%
-#' @import gridExtra
-#'
-#' @description Class method to generate two plots. First plot plots residuals vs predictions and second
-#' plot shows the square root of the standardized residuals vs the predictions
-#'
-#' @title customized plot function
-#'
-#' @export
 linreg$methods(plot = function() {
   rel_data <- data.frame(.self$predictions, .self$residuals, sqrt(abs(.self$residuals/sd(.self$residuals))))
   colnames(rel_data) <- c("predictions", "residuals", "standardized_res")
@@ -60,3 +50,15 @@ linreg$methods(plot = function() {
   grid.arrange(first_plot, second_plot, ncol=1, nrow=2, heights=c(5,5))
 })
 
+
+#' Function to use print in class
+#'
+#' Use print() function inside the class methods
+#'
+#' @param to_print String that should be printed
+#'
+#' @export
+
+ext_print <- function(to_print) {
+  print(to_print)
+}
