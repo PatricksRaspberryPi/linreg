@@ -1,7 +1,7 @@
-#' Linear Regression Reference Class
+#' Ridge Regression Class
 #'
-#' Definition of the Reference Class linreg for the linear regression model
-#' in Lab 4.
+#' Definition of the Reference Class ridgereg for the ridge regression model in
+#' the Bonus Lab.
 #'
 #'
 #' @field formula formula for building the model
@@ -14,35 +14,26 @@
 #' @field beta_var variance of the regression coefficients
 #' @field t_value t-values for each coefficient
 #' @field p_value p-values for each coefficient
+#' @field lambda hyperparameter to tune models
 #'
 #'
-#' @import ggplot2
-#' @importFrom dplyr %>% summarise group_by
-#' @import gridExtra
 #'
-#'
-#' @export linreg
-#' @exportClass linreg
+#' @export ridgereg
+#' @exportClass ridgereg
 
-linreg <- setRefClass(Class = "linreg",
+ridgereg <- setRefClass(Class = "ridgereg",
 
                       fields = list(formula = "formula",
                                     data = "data.frame",
                                     beta = "matrix",
                                     predictions = "matrix",
-                                    residuals = "matrix",
-                                    df = "numeric",
-                                    res_var = "matrix",
-                                    beta_var = "matrix",
-                                    t_value = "matrix",
-                                    p_value = "matrix",
-                                    name_dataset = "character",
+                                    lambda = "numeric",
                                     col_names = "character"),
 
 
                       methods = list(
 
-                        initialize = function(formula, data){
+                        initialize = function(formula, data, lambda){
 
                           if (!(inherits(formula, "formula") & is.data.frame(data))) {
                             stop("Wrong input!")
@@ -52,21 +43,18 @@ linreg <- setRefClass(Class = "linreg",
 
 
                           X <- model.matrix(formula, data)
+
+                          X_norm <- cbind(X[, 1], scale(X[,2:ncol(X)]))
+                          ext_print(X_norm)
                           #convert y to matrix, otherwise the computations won't work.
                           y <- as.matrix(data[all.vars(formula)[1]])
 
+                          .self$lambda <<- lambda
                           .self$col_names <<- colnames(X)
                           .self$formula <<- formula
                           .self$data <<- data
-                          .self$name_dataset <<- deparse(substitute(data))
-                          .self$beta <<- solve((t(X) %*% X)) %*% t(X) %*% y
+                          .self$beta <<- solve((t(X_norm) %*% X_norm) + lambda*diag(ncol(X_norm))) %*% (t(X_norm) %*% y)
                           .self$predictions <<- X %*% beta
-                          .self$residuals <<- y - predictions
-                          .self$df <<- nrow(X) - ncol(X)
-                          .self$res_var <<- (t(residuals) %*% residuals)/df
-                          .self$beta_var <<- as.numeric(res_var) * solve(t(X) %*% X)
-                          .self$t_value <<- beta/sqrt(diag(beta_var))
-                          .self$p_value <<- 2 * pt(q=-abs(t_value), df=df)
 
 
                           return(.self)
@@ -102,32 +90,32 @@ linreg <- setRefClass(Class = "linreg",
                         },
 
 
-                        resid = function(){
-                          return(.self$residuals)
-                        },
 
-
-                        pred = function(){
+                        predict = function() {
                           return(.self$predictions)
                         },
 
 
                         coef = function(){
                           return(.self$beta)
-                        },
-
-
-                        summary = function(){
-
-                          coef_df <- data.frame(.self$beta, sqrt(diag(beta_var)), .self$t_value, .self$p_value, unlist(lapply(p_value, FUN = significance)))
-                          colnames(coef_df) <- c("Estimate", "Std. Error", "t value", "Pr(>|t|)", " ")
-
-                          ext_print(coef_df)
-                          ext_print("")
-                          ext_print(sprintf("Residual standard error: %f on %i degrees of freedom", sqrt(.self$res_var), .self$df))
-
                         }
                       )
-                    )
+)
 
-
+# library("MASS")
+# a <- matrix(c(1,1,1,1,5,6,20,30,40,50,70,30), nrow=4)
+# a
+# (t(a) %*% a)
+# data("iris")
+#
+# c <- scale(a)
+#
+#
+#
+# iris.scaled <- iris
+# iris.scaled$Sepal.Width <- scale(iris.scaled$Sepal.Width)
+# iris.scaled$Sepal.Length <- scale(iris.scaled$Sepal.Length)
+# ridgereg_MASS <- MASS::lm.ridge(Petal.Length~Sepal.Width+Sepal.Length, data=iris.scaled, lambda = 2)
+# try_1 <- ridgereg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris.scaled, lambda = 2)
+# ridgereg_MASS
+# try_1$coef()
