@@ -1,5 +1,5 @@
 ---
-title: "linreg"
+title: "linreg-Package"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{linreg}
@@ -14,8 +14,36 @@ knitr::opts_chunk$set(
 )
 ```
 
+The linreg-package implements the functionality of a linear regression. 
 
-
+To fit a linear model, a new linreg-object has to be created, with the dataset and a respective formula for the model as inputs. An example could look like this:
 ```{r setup}
+# load the package
 library(linearregressionlab)
+
+# create new linreg object
+data(iris)
+mod_object <- linreg(Petal.Length~Species, data = iris) 
+
+mod_object
+```
+In the following code examples, the major methods for the linear regression can be found:
+
+```{r}
+# show coefficients
+mod_object$coef()
+
+# show residuals
+mod_object$resid()[1:10]
+
+# show predictions
+mod_object$pred()[1:10]
+
+# get summary of the regression
+mod_object$summary()
+```
+
+```{r fig_1, fig.height=11, fig.width=6, fig.align='center', echo=TRUE}
+# plot overview of regression
+mod_object$plot()
 ```
